@@ -1,15 +1,35 @@
-//your JS code here. If required.
 function throttle(callback, delay) {
+  let timeOut = null;
+  let lastArgs = null;
+  let context = null;
 
-	let timeOut = null;
-	return (...args)=>{
-		if(!timeOut){
-				callback(...args)
-			timeOut = setTimeout(()=>{
-				timeOut = null;
-			},delay)
-		}
-	}
+  function throttledFunction(...args) {
+    if (!timeOut) {
+      callback.apply(this, args);
+      timeOut = setTimeout(() => {
+        timeOut = null;
+        if (lastArgs) {
+          callback.apply(context, lastArgs);
+          lastArgs = null;
+          context = null;
+        }
+      }, delay);
+    } else {
+      lastArgs = args;
+      context = this;
+    }
+  }
+
+  throttledFunction.cancel = function() {
+    if (timeOut) {
+      clearTimeout(timeOut);
+      timeOut = null;
+    }
+    lastArgs = null;
+    context = null;
+  };
+
+  return throttledFunction;
 }
 
 module.exports = throttle;
